@@ -5,5 +5,39 @@
     "license": "MIT",
     "engines": {
         "node": ">=16"
+    },
+    "keywords": [
+        "riddance",
+        "serverless",
+        "environment",
+        "ioc",
+        "devops",
+        "devenv",
+        "opinionated"
+    ],
+    "files": [
+        "*.js",
+        "*.d.ts",
+        "mock/*.js",
+        "mock/*.d.ts"
+    ],
+    "exports": {
+        "./context": "./context.js",
+        "./http": "./http.js",
+        "./test/context": "./mock/context.js",
+        "./test/http": "./mock/http.js"
+    },
+    "dependencies": {
+        "@riddance/host": "0.0.1",
+        "@riddance/docs": "git@github.com:hiddengemgroup/node-docs.git#v0.0.1",
+        "jsonwebtoken": "8.5.1"
+    },
+    "devDependencies": {
+        "@riddance/env": "0.0.1",
+        "@types/jsonwebtoken": "8.5.8"
+    },
+    "scripts": {
+        "prepare": "tsc",
+        "watch": "watch"
     }
 }
