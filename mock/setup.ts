@@ -39,7 +39,10 @@ async function readEnv() {
         envText
             .split(EOL)
             .filter(l => l.length !== 0 && !l.startsWith('#'))
-            .map(line => line.split('=').map(t => t.trim()) as [string, string]),
+            .map(line => {
+                const ix = line.indexOf('=')
+                return [line.substring(0, ix), line.substring(ix + 1)] as [string, string]
+            }),
     )
 }
 
