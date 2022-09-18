@@ -1,6 +1,6 @@
 {
     "name": "@riddance/service",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "type": "module",
     "license": "MIT",
     "engines": {
@@ -28,7 +28,7 @@
         "./test/http": "./mock/http.js"
     },
     "dependencies": {
-        "@riddance/host": "0.0.2",
+        "@riddance/host": "0.0.5",
         "@riddance/docs": "git@github.com:hiddengemgroup/node-docs.git#v0.0.1",
         "jsonwebtoken": "8.5.1"
     },

@@ -44,7 +44,7 @@ export async function request(options: RequestOptions): Promise<Response> {
     )
     const [handler] = matchingHandlers
     if (!handler) {
-        context.log.error('Request END', undefined, {
+        log.error('Request END', undefined, {
             handlers: handlers.map(h => ({
                 pathPattern: h.pathPattern,
                 pathRegExp: h.pathRegExp.toString(),
@@ -60,8 +60,8 @@ export async function request(options: RequestOptions): Promise<Response> {
         }
     }
     if (matchingHandlers.length !== 1) {
-        context.log.error('Multiple matching handlers.', undefined, { matchingHandlers })
-        context.log.error('Request END', undefined, {
+        log.error('Multiple matching handlers.', undefined, { matchingHandlers })
+        log.error('Request END', undefined, {
             handlers: handlers.map(h => ({
                 pathPattern: h.pathPattern,
                 pathRegExp: h.pathRegExp.toString(),
@@ -76,7 +76,7 @@ export async function request(options: RequestOptions): Promise<Response> {
             status: 500,
         }
     }
-    context.log.trace('Found handler', undefined, {
+    log.trace('Found handler', undefined, {
         handler: {
             pathPattern: handler.pathPattern,
             pathRegExp: handler.pathRegExp.toString(),
