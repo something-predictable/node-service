@@ -1,6 +1,6 @@
 {
     "name": "@riddance/service",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "type": "module",
     "license": "MIT",
     "engines": {
@@ -33,7 +33,7 @@
         "jsonwebtoken": "8.5.1"
     },
     "devDependencies": {
-        "@riddance/env": "0.0.3",
+        "@riddance/env": "0.0.4",
         "@types/jsonwebtoken": "8.5.8"
     },
     "scripts": {

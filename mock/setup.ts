@@ -9,11 +9,11 @@ import {
     LogTransport,
 } from '@riddance/host/context'
 import { Metadata, setMeta } from '@riddance/host/registry'
-import { readdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { EOL } from 'node:os'
 import { basename, extname, join, resolve } from 'node:path'
+import { performance } from 'node:perf_hooks'
 import { pathToFileURL } from 'node:url'
-import { performance } from 'perf_hooks'
 import { Environment, Json } from '../context.js'
 
 export function setup() {
@@ -35,16 +35,16 @@ export function setup() {
 
 async function readEnv() {
     try {
-    const envText = await readFile('test/env.txt', 'utf-8')
-    return Object.fromEntries(
-        envText
-            .split(EOL)
-            .filter(l => l.length !== 0 && !l.startsWith('#'))
-            .map(line => {
-                const ix = line.indexOf('=')
-                return [line.substring(0, ix).trim(), line.substring(ix + 1).trim()]
-            }),
-    )
+        const envText = await readFile('test/env.txt', 'utf-8')
+        return Object.fromEntries(
+            envText
+                .split(EOL)
+                .filter(l => l.length !== 0 && !l.startsWith('#'))
+                .map(line => {
+                    const ix = line.indexOf('=')
+                    return [line.substring(0, ix).trim(), line.substring(ix + 1).trim()]
+                }),
+        )
     } catch (e) {
         if ((e as { code?: string }).code === 'ENOENT') {
             return {}
@@ -187,8 +187,10 @@ class MockLogger implements LogTransport {
 
     async writeLog() {
         try {
+            const resultPath = join('test', 'results')
+            await mkdir(resultPath, { recursive: true })
             const name = join(
-                'test',
+                resultPath,
                 'log-' + new Date().toISOString().replaceAll(':', '') + '.json',
             )
             await writeFile(
