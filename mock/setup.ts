@@ -34,6 +34,7 @@ export function setup() {
 }
 
 async function readEnv() {
+    try {
     const envText = await readFile('test/env.txt', 'utf-8')
     return Object.fromEntries(
         envText
@@ -44,6 +45,12 @@ async function readEnv() {
                 return [line.substring(0, ix).trim(), line.substring(ix + 1).trim()]
             }),
     )
+    } catch (e) {
+        if ((e as { code?: string }).code === 'ENOENT') {
+            return {}
+        }
+        throw e
+    }
 }
 
 async function readConfig() {
