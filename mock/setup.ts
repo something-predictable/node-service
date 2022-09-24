@@ -41,7 +41,7 @@ async function readEnv() {
             .filter(l => l.length !== 0 && !l.startsWith('#'))
             .map(line => {
                 const ix = line.indexOf('=')
-                return [line.substring(0, ix), line.substring(ix + 1)] as [string, string]
+                return [line.substring(0, ix).trim(), line.substring(ix + 1).trim()]
             }),
     )
 }
