@@ -1,43 +1,42 @@
 {
-    "name": "@riddance/service",
-    "version": "0.0.10",
-    "type": "module",
-    "license": "MIT",
-    "engines": {
-        "node": ">=16"
-    },
-    "keywords": [
-        "riddance",
-        "serverless",
-        "environment",
-        "ioc",
-        "devops",
-        "devenv",
-        "opinionated"
-    ],
-    "files": [
-        "*.js",
-        "*.d.ts",
-        "mock/*.js",
-        "mock/*.d.ts"
-    ],
-    "exports": {
-        "./context": "./context.js",
-        "./http": "./http.js",
-        "./test/context": "./mock/context.js",
-        "./test/http": "./mock/http.js"
-    },
-    "dependencies": {
-        "@riddance/host": "0.0.9",
-        "@riddance/docs": "git@github.com:hiddengemgroup/node-docs.git#v0.0.1",
-        "jsonwebtoken": "9.0.0"
-    },
-    "devDependencies": {
-        "@riddance/env": "0.1.2",
-        "@types/jsonwebtoken": "9.0.0"
-    },
-    "scripts": {
-        "prepare": "tsc",
-        "watch": "watch"
-    }
+  "name": "@riddance/service",
+  "version": "0.0.11",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "keywords": [
+    "riddance",
+    "serverless",
+    "environment",
+    "ioc",
+    "devops",
+    "devenv",
+    "opinionated"
+  ],
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "mock/*.js",
+    "mock/*.d.ts"
+  ],
+  "exports": {
+    "./context": "./context.js",
+    "./http": "./http.js",
+    "./test/context": "./mock/context.js",
+    "./test/http": "./mock/http.js"
+  },
+  "dependencies": {
+    "@riddance/host": "0.0.10",
+    "jsonwebtoken": "9.0.0"
+  },
+  "devDependencies": {
+    "@riddance/env": "0.2.4",
+    "@types/jsonwebtoken": "9.0.0"
+  },
+  "scripts": {
+    "prepack": "node node_modules/@riddance/env/bin/build.js",
+    "start": "watch"
+  }
 }

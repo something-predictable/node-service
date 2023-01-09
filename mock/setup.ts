@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import { resetMemoryDocuments, setupMemoryDocuments } from '@riddance/docs/test/in-memory'
 import {
     BufferedEvent,
     ClientInfo,
@@ -18,7 +17,6 @@ import { Environment, Json } from '../context.js'
 
 export function setup() {
     setupTestContext()
-    installDocs()
     before(async () => {
         const { name, config } = await readConfig()
         const dir = process.cwd()
@@ -59,11 +57,6 @@ async function readConfig() {
         config?: object
     }
     return packageJson
-}
-
-function installDocs() {
-    beforeEach(setupMemoryDocuments)
-    afterEach(resetMemoryDocuments)
 }
 
 let testContext: TestContext | undefined
