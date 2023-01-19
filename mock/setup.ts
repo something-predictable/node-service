@@ -238,7 +238,7 @@ function levelString(level: LogLevel) {
     }
 }
 
-interface Event {
+type Event = {
     topic: string
     type: string
     subject: string

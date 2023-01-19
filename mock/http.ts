@@ -9,7 +9,7 @@ export * from './context.js'
 
 setup()
 
-export interface Response {
+export type Response = {
     headers: { [key: string]: string }
     status: number
     // Used to assert on in tests, so no need for the type system to get in the way
@@ -19,17 +19,17 @@ export interface Response {
 
 type RequestOptions = BodylessRequestOptions | StringRequestOptions | JsonRequestOptions
 
-interface BodylessRequestOptions {
+type BodylessRequestOptions = {
     method?: Method
     uri: string
     headers?: { readonly [key: string]: string }
 }
 
-interface StringRequestOptions extends BodylessRequestOptions {
+type StringRequestOptions = BodylessRequestOptions & {
     body: string
 }
 
-interface JsonRequestOptions extends BodylessRequestOptions {
+type JsonRequestOptions = BodylessRequestOptions & {
     json: object
 }
 
@@ -119,7 +119,7 @@ export function withBearer(payload: object, requestOptions: RequestOptions): Req
     }
 }
 
-export interface BearerTokenOptions {
+export type BearerTokenOptions = {
     issuer?: string
     audience?: string | string[]
     subject?: string

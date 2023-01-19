@@ -1,6 +1,6 @@
 {
   "name": "@riddance/service",
-  "version": "0.0.11",
+  "version": "0.0.13",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -28,15 +28,17 @@
     "./test/http": "./mock/http.js"
   },
   "dependencies": {
-    "@riddance/host": "0.0.10",
+    "@riddance/host": "0.0.12",
     "jsonwebtoken": "9.0.0"
   },
   "devDependencies": {
-    "@riddance/env": "0.2.4",
-    "@types/jsonwebtoken": "9.0.0"
+    "@riddance/env": "0.2.9",
+    "@types/jsonwebtoken": "9.0.1"
   },
   "scripts": {
-    "prepack": "node node_modules/@riddance/env/bin/build.js",
-    "start": "watch"
+    "start": "riddance-watch",
+    "prepack": "riddance-build",
+    "prepublishOnly": "riddance-prepublish",
+    "postpublish": "riddance-sync"
   }
 }
