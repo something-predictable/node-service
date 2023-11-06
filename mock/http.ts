@@ -1,5 +1,5 @@
 import { clientFromHeaders, executeRequest } from '@riddance/host/http'
-import { getHandlers, Method } from '@riddance/host/registry'
+import { Method, getHandlers } from '@riddance/host/registry'
 import jwt from 'jsonwebtoken'
 import { Environment } from '../http.js'
 import { getEnvironment } from './context.js'
@@ -35,14 +35,15 @@ type JsonRequestOptions = BodylessRequestOptions & {
 
 export async function request(options: RequestOptions): Promise<Response> {
     const handlers = getHandlers('http')
-    const { log, context, success, flush } = createMockContext(
-        clientFromHeaders(options.headers),
-        handlers[0]?.meta,
-    )
     const matchingHandlers = handlers.filter(
         h => h.pathRegExp.test(options.uri) && h.method === (options.method ?? 'GET'),
     )
     const [handler] = matchingHandlers
+    const { log, context, success, flush } = createMockContext(
+        clientFromHeaders(options.headers),
+        handler?.config,
+        handler?.meta,
+    )
     if (!handler) {
         log.error('Request END', undefined, {
             handlers: handlers.map(h => ({

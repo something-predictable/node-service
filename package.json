@@ -1,10 +1,10 @@
 {
   "name": "@riddance/service",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "type": "module",
   "license": "MIT",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "keywords": [
     "riddance",
@@ -28,12 +28,12 @@
     "./test/http": "./mock/http.js"
   },
   "dependencies": {
-    "@riddance/host": "0.0.12",
-    "jsonwebtoken": "9.0.0"
+    "@riddance/host": "0.0.13",
+    "jsonwebtoken": "9.0.2"
   },
   "devDependencies": {
-    "@riddance/env": "0.2.9",
-    "@types/jsonwebtoken": "9.0.1"
+    "@riddance/env": "0.4.3",
+    "@types/jsonwebtoken": "9.0.4"
   },
   "scripts": {
     "start": "riddance-watch",

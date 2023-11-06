@@ -7,7 +7,7 @@ import {
     LogLevel,
     LogTransport,
 } from '@riddance/host/context'
-import { Metadata, setMeta } from '@riddance/host/registry'
+import { FullConfiguration, Metadata, setMeta } from '@riddance/host/registry'
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { EOL } from 'node:os'
 import { basename, extname, join, resolve } from 'node:path'
@@ -93,7 +93,7 @@ function setupTestContext() {
     })
 }
 
-export function createMockContext(client: ClientInfo, meta?: Metadata) {
+export function createMockContext(client: ClientInfo, config?: FullConfiguration, meta?: Metadata) {
     const ctx = getTestContext()
     return createContext(
         client,
@@ -115,6 +115,7 @@ export function createMockContext(client: ClientInfo, meta?: Metadata) {
         },
         { default: 15 },
         new AbortController(),
+        config,
         meta,
         ctx.env,
         () => ctx.now(),
