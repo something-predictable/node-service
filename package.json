@@ -1,6 +1,6 @@
 {
   "name": "@riddance/service",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -28,12 +28,12 @@
     "./test/http": "./mock/http.js"
   },
   "dependencies": {
-    "@riddance/host": "0.0.13",
+    "@riddance/host": "0.0.14",
     "jsonwebtoken": "9.0.2"
   },
   "devDependencies": {
-    "@riddance/env": "0.4.3",
-    "@types/jsonwebtoken": "9.0.4"
+    "@riddance/env": "0.4.5",
+    "@types/jsonwebtoken": "9.0.5"
   },
   "scripts": {
     "start": "riddance-watch",
