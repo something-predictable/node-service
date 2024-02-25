@@ -174,7 +174,9 @@ class MockLogger implements LogTransport {
             }
             const logFile = await p
             if (logFile) {
-                console.info(`Full log of "${testTitle}" saved to ${resolve(logFile)}`)
+                console.info(
+                    `Full log of "${testTitle}" saved to ${resolve(process.cwd(), logFile)}`,
+                )
             }
         }
     }
