@@ -10,8 +10,9 @@ import {
 import { FullConfiguration, Metadata, setMeta } from '@riddance/host/registry'
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { EOL } from 'node:os'
-import { basename, extname, join, resolve } from 'node:path'
+import { basename, extname, join } from 'node:path'
 import { performance } from 'node:perf_hooks'
+import { afterEach, before, beforeEach } from 'node:test'
 import { pathToFileURL } from 'node:url'
 import { Environment, Json } from '../context.js'
 
@@ -59,38 +60,34 @@ async function readConfig() {
     return packageJson
 }
 
-let testContext: TestContext | undefined
+let runningTestContext: TestContext | undefined
+
+async function clearLoggedEntries() {
+    const env = await readEnv()
+    if (runningTestContext) {
+        throw Error('Context exists.')
+    }
+    runningTestContext = new TestContext(env)
+}
+
+async function checkLog(test: { name: string }) {
+    const testContext = runningTestContext
+    if (!testContext) {
+        throw Error('Test context lost.')
+    }
+    runningTestContext = undefined
+    await testContext.log.dumpLog(test.name)
+    if (testContext.log.failed) {
+        throw Error(
+            `"${test.name}" logged errors during the test. Wrap the test code in allowErrorLogs if the error log entries are expected.`,
+        )
+    }
+}
 
 function setupTestContext() {
-    beforeEach('Clear logged entries', async () => {
-        const env = await readEnv()
-        if (testContext) {
-            throw Error('Context exists.')
-        }
-        testContext = new TestContext(env)
-    })
-
-    afterEach('Check log', async function () {
-        if (!testContext) {
-            throw Error('Test context lost.')
-        }
-        const test = this.currentTest
-        if (test) {
-            const title = test.fullTitle()
-            if (test.isFailed()) {
-                await testContext.log.dumpLog(title)
-            }
-            if (testContext.log.failed) {
-                if (!test.isFailed()) {
-                    await testContext.log.dumpLog(title)
-                    throw Error(
-                        `"${title}" passed but subsequently failed because errors was logged during the test. Wrap the test code in allowErrorLogs if the error log entries are expected.`,
-                    )
-                }
-            }
-        }
-        testContext = undefined
-    })
+    beforeEach(clearLoggedEntries)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    afterEach(checkLog as unknown as any)
 }
 
 export function createMockContext(client: ClientInfo, config?: FullConfiguration, meta?: Metadata) {
@@ -123,10 +120,10 @@ export function createMockContext(client: ClientInfo, config?: FullConfiguration
 }
 
 export function getTestContext(): TestContext {
-    if (!testContext) {
+    if (!runningTestContext) {
         throw Error('No test is running.')
     }
-    return testContext
+    return runningTestContext
 }
 
 class MockLogger implements LogTransport {
@@ -159,36 +156,15 @@ class MockLogger implements LogTransport {
 
     async dumpLog(testTitle: string) {
         if (this.#entries.length !== 0) {
-            const p = this.writeLog()
-            const errors = this.#entries.filter(e => e.level === 'fatal' || e.level === 'error')
-            if (errors.length !== 0) {
-                console.error(testTitle + ' error log:')
-                errors.forEach(e => {
-                    console.error(
-                        `@${this.#msSinceStart(e)}ms ${levelString(e.level)} ${e.message}`,
-                    )
-                    if (e.error) {
-                        console.error(e.error)
-                    }
-                })
-            }
-            const logFile = await p
-            if (logFile) {
-                console.info(
-                    `Full log of "${testTitle}" saved to ${resolve(process.cwd(), logFile)}`,
-                )
-            }
+            await this.writeLog(testTitle)
         }
     }
 
-    async writeLog() {
+    async writeLog(testTitle: string) {
         try {
             const resultPath = join('test', 'results')
             await mkdir(resultPath, { recursive: true })
-            const name = join(
-                resultPath,
-                'log-' + new Date().toISOString().replaceAll(':', '') + '.json',
-            )
+            const name = join(resultPath, `${testTitle}.log.json`)
             await writeFile(
                 name,
                 `[${this.#entries
