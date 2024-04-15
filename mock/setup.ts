@@ -10,7 +10,7 @@ import {
 import { FullConfiguration, Metadata, setMeta } from '@riddance/host/registry'
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { EOL } from 'node:os'
-import { basename, extname, join, resolve } from 'node:path'
+import { basename, extname, join, relative, sep } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { pathToFileURL } from 'node:url'
 import { Environment, Json } from '../context.js'
@@ -175,7 +175,7 @@ class MockLogger implements LogTransport {
             const logFile = await p
             if (logFile) {
                 console.info(
-                    `Full log of "${testTitle}" saved to ${resolve(process.cwd(), logFile)}`,
+                    `Full log of "${testTitle}" saved to .${sep}${relative(process.env.PROJECT_DIRECTORY ?? process.cwd(), logFile)}`,
                 )
             }
         }

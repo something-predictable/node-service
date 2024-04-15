@@ -24,12 +24,13 @@ export function clearEmitted() {
     getTestContext().emitted = []
 }
 
-export async function allowErrorLogs<T>(fn: () => Promise<T> | T) {
-    getTestContext().log.failOnErrorLogs = false
-    try {
-        return await fn()
-    } finally {
-        getTestContext().log.failOnErrorLogs = true
+export function allowErrorLogs() {
+    const l = getTestContext().log
+    l.failOnErrorLogs = false
+    return {
+        [Symbol.dispose]: () => {
+            l.failOnErrorLogs = true
+        },
     }
 }
 
