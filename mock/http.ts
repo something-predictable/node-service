@@ -134,7 +134,7 @@ export function createBearerToken(
 ): string {
     const key = env.BEARER_PRIVATE_KEY
     if (!key) {
-        throw Error(
+        throw new Error(
             'Please set the BEARER_PRIVATE_KEY environment variable to be able to create bearer tokens.',
         )
     }

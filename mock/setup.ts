@@ -40,7 +40,7 @@ async function readEnv() {
                 .filter(l => l.length !== 0 && !l.startsWith('#'))
                 .map(line => {
                     const ix = line.indexOf('=')
-                    return [line.substring(0, ix).trim(), line.substring(ix + 1).trim()]
+                    return [line.slice(0, ix).trim(), line.slice(ix + 1).trim()]
                 }),
         )
     } catch (e) {
@@ -65,14 +65,14 @@ function setupTestContext() {
     beforeEach('Clear logged entries', async () => {
         const env = await readEnv()
         if (testContext) {
-            throw Error('Context exists.')
+            throw new Error('Context exists.')
         }
         testContext = new TestContext(env)
     })
 
     afterEach('Check log', async function () {
         if (!testContext) {
-            throw Error('Test context lost.')
+            throw new Error('Test context lost.')
         }
         const test = this.currentTest
         if (test) {
@@ -83,7 +83,7 @@ function setupTestContext() {
             if (testContext.log.failed) {
                 if (!test.isFailed()) {
                     await testContext.log.dumpLog(title)
-                    throw Error(
+                    throw new Error(
                         `"${title}" passed but subsequently failed because errors was logged during the test. Wrap the test code in allowErrorLogs if the error log entries are expected.`,
                     )
                 }
@@ -124,14 +124,14 @@ export function createMockContext(client: ClientInfo, config?: FullConfiguration
 
 export function getTestContext(): TestContext {
     if (!testContext) {
-        throw Error('No test is running.')
+        throw new Error('No test is running.')
     }
     return testContext
 }
 
 class MockLogger implements LogTransport {
     #entries: LogEntry[] = []
-    readonly #startTime = Math.round(performance.now() * 10000)
+    readonly #startTime = Math.round(performance.now() * 10_000)
     failOnErrorLogs = true
     failed = false
 
@@ -154,7 +154,7 @@ class MockLogger implements LogTransport {
     }
 
     #msSinceStart(entry: LogEntry) {
-        return (Math.round(entry.timestamp * 10000) - this.#startTime) / 10000
+        return (Math.round(entry.timestamp * 10_000) - this.#startTime) / 10_000
     }
 
     async dumpLog(testTitle: string) {

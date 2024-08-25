@@ -7,7 +7,7 @@ export function getLoggedEntries(): LogEntry[] {
 }
 
 export function clearLoggedEntries() {
-    return getTestContext().log.clear()
+    getTestContext().log.clear()
 }
 
 export function getEmitted(): {
@@ -40,7 +40,7 @@ export function timeShift(seconds: number): void {
 
 export function timeShiftTo(when: Date): void {
     getTestContext().timeShift = 0
-    timeShift((when.getTime() - new Date().getTime()) / 1000)
+    timeShift((when.getTime() - Date.now()) / 1000)
 }
 
 export function getEnvironment() {

@@ -46,14 +46,14 @@ export function notImplemented() {
 export function getBearer(context: Context, req: { headers: { authorization?: string } }): Json {
     const key = context.env.BEARER_PUBLIC_KEY
     if (!key) {
-        throw Error('Please set the BEARER_PUBLIC_KEY environment variable to extract bearer.')
+        throw new Error('Please set the BEARER_PUBLIC_KEY environment variable to extract bearer.')
     }
     const authHeader = req.headers.authorization
     if (!authHeader?.startsWith('Bearer ')) {
         throw unauthorized()
     }
     try {
-        const token = authHeader.substring('Bearer '.length)
+        const token = authHeader.slice('Bearer '.length)
         const certificate = '-----BEGIN PUBLIC KEY-----\n' + key + '\n-----END PUBLIC KEY-----'
         return jwt.verify(token, certificate, {})
     } catch (e) {
