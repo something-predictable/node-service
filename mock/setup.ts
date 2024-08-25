@@ -36,7 +36,7 @@ async function readEnv() {
         const envText = await readFile('test/env.txt', 'utf-8')
         return Object.fromEntries(
             envText
-                .split(EOL)
+                .split('\n')
                 .filter(l => l.length !== 0 && !l.startsWith('#'))
                 .map(line => {
                     const ix = line.indexOf('=')
