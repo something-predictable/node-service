@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken'
 import { Context, Json } from './context.js'
+import { verify } from './lib/jwt.js'
 
 export * from '@riddance/host/lib/http'
 export * from './context.js'
@@ -25,12 +25,12 @@ export function badRequest(publicMessage?: string) {
     return withPublicMessage(withStatus(new Error('Bad request'), 400), publicMessage)
 }
 
-// Please authenticate yourself, e.g. log in or refresh your tokens
+/** Please authenticate yourself, e.g. log in or refresh your tokens. */
 export function unauthorized() {
     return withStatus(new Error('Unauthorized'), 401)
 }
 
-// I known who you are; you're never getting in
+/** I known who you are; you're never getting in. */
 export function forbidden() {
     return withStatus(new Error('Forbidden'), 403)
 }
@@ -43,7 +43,10 @@ export function notImplemented() {
     return withStatus(new Error('Not implemented'), 501)
 }
 
-export function getBearer(context: Context, req: { headers: { authorization?: string } }): Json {
+/*@__NO_SIDE_EFFECTS__*/ export function getBearer(
+    context: Context,
+    req: { headers: { authorization?: string } },
+): Json {
     const key = context.env.BEARER_PUBLIC_KEY
     if (!key) {
         throw new Error('Please set the BEARER_PUBLIC_KEY environment variable to extract bearer.')
@@ -54,8 +57,8 @@ export function getBearer(context: Context, req: { headers: { authorization?: st
     }
     try {
         const token = authHeader.slice('Bearer '.length)
-        const certificate = '-----BEGIN PUBLIC KEY-----\n' + key + '\n-----END PUBLIC KEY-----'
-        return jwt.verify(token, certificate, {})
+        const certificate = '-----BEGIN PUBLIC KEY-----/n' + key + '/n-----END PUBLIC KEY-----'
+        return /*@__PURE__*/ verify(token, certificate)
     } catch (e) {
         context.log.debug('Error verifying jwt.', e)
         throw unauthorized()
