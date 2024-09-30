@@ -16,10 +16,15 @@
     "opinionated"
   ],
   "files": [
-    "*.js",
-    "*.d.ts",
-    "mock/*.js",
-    "mock/*.d.ts"
+    "./*.js",
+    "./*.d.ts",
+    "./lib/*.js",
+    "./mock/*.js",
+    "./mock/*.d.ts"
+  ],
+  "sideEffects": [
+    "./context.js",
+    "./http.js"
   ],
   "exports": {
     "./context": "./context.js",
@@ -28,12 +33,12 @@
     "./test/http": "./mock/http.js"
   },
   "dependencies": {
-    "@riddance/host": "0.1.1",
+    "@riddance/host": "0.1.2",
     "jsonwebtoken": "9.0.2"
   },
   "devDependencies": {
-    "@riddance/env": "0.6.1",
-    "@types/jsonwebtoken": "9.0.6"
+    "@riddance/env": "0.6.4",
+    "@types/jsonwebtoken": "9.0.7"
   },
   "scripts": {
     "start": "riddance-watch",

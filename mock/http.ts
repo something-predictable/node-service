@@ -1,5 +1,5 @@
 import { clientFromHeaders, executeRequest } from '@riddance/host/http'
-import { Method, getHandlers } from '@riddance/host/registry'
+import { Method, getHandlers, pathToRegExp } from '@riddance/host/registry'
 import jwt from 'jsonwebtoken'
 import { Environment } from '../http.js'
 import { getEnvironment } from './context.js'
@@ -34,9 +34,9 @@ type JsonRequestOptions = BodylessRequestOptions & {
 }
 
 export async function request(options: RequestOptions): Promise<Response> {
-    const handlers = getHandlers('http')
+    const handlers = getHandlers('http').map(withPathRegExp)
     const matchingHandlers = handlers.filter(
-        h => h.pathRegExp.test(options.uri) && h.method === (options.method ?? 'GET'),
+        h => h[pathRegExp].test(options.uri) && h.method === (options.method ?? 'GET'),
     )
     const [handler] = matchingHandlers
     const { log, context, success, flush } = createMockContext(
@@ -48,7 +48,7 @@ export async function request(options: RequestOptions): Promise<Response> {
         log.error('Request END', undefined, {
             handlers: handlers.map(h => ({
                 pathPattern: h.pathPattern,
-                pathRegExp: h.pathRegExp.toString(),
+                pathRegExp: h[pathRegExp].toString(),
                 method: h.method,
             })),
             response: {
@@ -65,7 +65,7 @@ export async function request(options: RequestOptions): Promise<Response> {
         log.error('Request END', undefined, {
             handlers: handlers.map(h => ({
                 pathPattern: h.pathPattern,
-                pathRegExp: h.pathRegExp.toString(),
+                pathRegExp: h[pathRegExp].toString(),
                 method: h.method,
             })),
             response: {
@@ -80,7 +80,7 @@ export async function request(options: RequestOptions): Promise<Response> {
     log.trace('Found handler', undefined, {
         handler: {
             pathPattern: handler.pathPattern,
-            pathRegExp: handler.pathRegExp.toString(),
+            pathRegExp: handler[pathRegExp].toString(),
             method: handler.method,
         },
     })
@@ -103,6 +103,18 @@ export async function request(options: RequestOptions): Promise<Response> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         body: response.body ? JSON.parse(response.body.toString()) : undefined,
     }
+}
+
+const pathRegExp = Symbol()
+
+function withPathRegExp<T extends { pathPattern: string; [pathRegExp]?: RegExp }>(
+    handler: T,
+): T & { [pathRegExp]: RegExp } {
+    if (pathRegExp in handler) {
+        return handler as T & { [pathRegExp]: RegExp }
+    }
+    handler[pathRegExp] = pathToRegExp(handler.pathPattern)
+    return handler as T & { [pathRegExp]: RegExp }
 }
 
 export function withBearer(payload: object, requestOptions: RequestOptions): RequestOptions {
