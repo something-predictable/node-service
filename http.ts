@@ -57,7 +57,7 @@ export function notImplemented() {
     }
     try {
         const token = authHeader.slice('Bearer '.length)
-        const certificate = '-----BEGIN PUBLIC KEY-----/n' + key + '/n-----END PUBLIC KEY-----'
+        const certificate = '-----BEGIN PUBLIC KEY-----\n' + key + '\n-----END PUBLIC KEY-----'
         return /*@__PURE__*/ verify(token, certificate)
     } catch (e) {
         context.log.debug('Error verifying jwt.', e)
