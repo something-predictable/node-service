@@ -1,6 +1,8 @@
 import { clientFromHeaders, executeRequest } from '@riddance/host/http'
 import { Method, getHandlers, pathToRegExp } from '@riddance/host/registry'
-import jwt from 'jsonwebtoken'
+import type { JWTPayload } from 'jose'
+import { SignJWT } from 'jose/jwt/sign'
+import { createPrivateKey } from 'node:crypto'
 import { Environment } from '../http.js'
 import { getEnvironment } from './context.js'
 import { createMockContext, setup } from './setup.js'
@@ -117,7 +119,10 @@ function withPathRegExp<T extends { pathPattern: string; [pathRegExp]?: RegExp }
     return handler as T & { [pathRegExp]: RegExp }
 }
 
-export function withBearer(payload: object, requestOptions: RequestOptions): RequestOptions {
+export async function withBearer(
+    payload: object,
+    requestOptions: RequestOptions,
+): Promise<RequestOptions> {
     const token = createBearerToken(getEnvironment(), payload, {
         issuer: 'https://riddance.example.com/oauth/',
         audience: 'https://riddance.example.com/',
@@ -127,7 +132,7 @@ export function withBearer(payload: object, requestOptions: RequestOptions): Req
         ...requestOptions,
         headers: {
             ...requestOptions.headers,
-            authorization: `Bearer ${token}`,
+            authorization: `Bearer ${await token}`,
         },
     }
 }
@@ -139,11 +144,11 @@ export type BearerTokenOptions = {
     expiresIn: number
 }
 
-export function createBearerToken(
+export async function createBearerToken(
     env: Environment,
     payload: object,
     options: BearerTokenOptions,
-): string {
+): Promise<string> {
     const key = env.BEARER_PRIVATE_KEY
     if (!key) {
         throw new Error(
@@ -151,8 +156,12 @@ export function createBearerToken(
         )
     }
     const certificate = '-----BEGIN EC PRIVATE KEY-----\n' + key + '\n-----END EC PRIVATE KEY-----'
-    return jwt.sign(payload, certificate, {
-        algorithm: 'ES384',
-        ...options,
-    })
+    const now = Math.floor(Date.now() / 1000)
+    return await new SignJWT(payload as JWTPayload)
+        .setProtectedHeader({ alg: 'ES384', typ: 'JWT' })
+        .setIssuedAt(now)
+        .setIssuer(options.issuer ?? 'https://riddance.example.com/oauth/')
+        .setAudience(options.audience ?? 'https://riddance.example.com/')
+        .setExpirationTime(now + options.expiresIn)
+        .sign(createPrivateKey({ key: certificate, format: 'pem', type: 'sec1' }))
 }

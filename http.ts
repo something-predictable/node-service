@@ -43,10 +43,10 @@ export function notImplemented() {
     return withStatus(new Error('Not implemented'), 501)
 }
 
-/*@__NO_SIDE_EFFECTS__*/ export function getBearer(
+/*@__NO_SIDE_EFFECTS__*/ export async function getBearer(
     context: Context,
     req: { headers: { authorization?: string } },
-): Json {
+): Promise<Json> {
     const key = context.env.BEARER_PUBLIC_KEY
     if (!key) {
         throw new Error('Please set the BEARER_PUBLIC_KEY environment variable to extract bearer.')
@@ -58,7 +58,7 @@ export function notImplemented() {
     try {
         const token = authHeader.slice('Bearer '.length)
         const certificate = '-----BEGIN PUBLIC KEY-----\n' + key + '\n-----END PUBLIC KEY-----'
-        return /*@__PURE__*/ verify(token, certificate)
+        return /*@__PURE__*/ await verify(token, certificate)
     } catch (e) {
         context.log.debug('Error verifying jwt.', e)
         throw unauthorized()

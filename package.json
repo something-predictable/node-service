@@ -34,11 +34,10 @@
   },
   "dependencies": {
     "@riddance/host": "0.1.2",
-    "jsonwebtoken": "9.0.2"
+    "jose": "5.9.6"
   },
   "devDependencies": {
-    "@riddance/env": "0.6.4",
-    "@types/jsonwebtoken": "9.0.7"
+    "@riddance/env": "0.6.4"
   },
   "scripts": {
     "start": "riddance-watch",

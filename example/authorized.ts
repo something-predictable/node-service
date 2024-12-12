@@ -1,7 +1,7 @@
 import { badRequest, forbidden, get, getBearer, objectSpreadable } from '@riddance/service/http'
 
-get('authorized', (context, request) => {
-    const { sub } = objectSpreadable(getBearer(context, request))
+get('authorized', async (context, request) => {
+    const { sub } = objectSpreadable(await getBearer(context, request))
     if (sub !== '🤫') {
         throw forbidden()
     }
