@@ -1,4 +1,4 @@
-import { getLoggedEntries, request, timeShiftTo } from '@riddance/service/test/http'
+import { getEmitted, getLoggedEntries, request, timeShiftTo } from '@riddance/service/test/http'
 import assert from 'node:assert/strict'
 
 describe('greeting', () => {
@@ -16,5 +16,17 @@ describe('greeting', () => {
                 .map(e => e.message),
             ['here'],
         )
+        assert.deepStrictEqual(getEmitted(), [
+            {
+                topic: 'greeting',
+                type: 'sent',
+                subject: 'anonymous',
+                messageId: undefined,
+                data: {
+                    message: 'hello',
+                    who: 'world',
+                },
+            },
+        ])
     })
 })
