@@ -5,7 +5,7 @@ export * from '@riddance/host/lib/http'
 export * from './context.js'
 
 /*@__INLINE__*/
-export function withStatus(error: Error, status: number) {
+export function withStatus<Status extends number>(error: Error, status: Status) {
     return Object.assign(error, { statusCode: status })
 }
 
@@ -30,7 +30,7 @@ export function unauthorized() {
     return withStatus(new Error('Unauthorized'), 401)
 }
 
-/** I known who you are; you're never getting in. */
+/** I known who you are; you're not getting in. */
 export function forbidden() {
     return withStatus(new Error('Forbidden'), 403)
 }
