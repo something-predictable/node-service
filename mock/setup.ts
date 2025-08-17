@@ -1,12 +1,5 @@
 /* eslint-disable no-console */
-import {
-    BufferedEvent,
-    ClientInfo,
-    createContext,
-    LogEntry,
-    LogLevel,
-    LogTransport,
-} from '@riddance/host/context'
+import { ClientInfo, createContext, LogEntry, LogLevel, LogTransport } from '@riddance/host/context'
 import { FullConfiguration, Metadata, setMeta } from '@riddance/host/registry'
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { EOL } from 'node:os'
@@ -25,7 +18,7 @@ export function setup() {
         )
         for (const file of files) {
             const base = basename(file, '.ts')
-            setMeta(name, base, undefined, config)
+            setMeta(name, base, 'test-mock', config)
             await import(pathToFileURL(join(dir, base + '.js')).toString())
         }
     })
@@ -99,17 +92,24 @@ export function createMockContext(client: ClientInfo, config?: FullConfiguration
         client,
         [ctx.log],
         {
-            publishRate: 100,
-            sendEvents: (topic, events: BufferedEvent[]) => {
-                ctx.emitted.push(
-                    ...events.map(e => ({
-                        topic,
-                        type: e.meta.type,
-                        subject: e.meta.subject,
-                        data: e.json,
-                        messageId: e.meta.id,
-                    })),
-                )
+            sendEvent(
+                topic: string,
+                type: string,
+                subject: string,
+                data: Json | undefined,
+                messageId: string | undefined,
+                signal: AbortSignal,
+            ) {
+                signal.throwIfAborted()
+                ctx.emitted.push({
+                    topic,
+                    type,
+                    subject,
+                    data:
+                        // eslint-disable-next-line unicorn/prefer-structured-clone
+                        data === undefined ? undefined : (JSON.parse(JSON.stringify(data)) as Json),
+                    messageId,
+                })
                 return Promise.resolve()
             },
         },

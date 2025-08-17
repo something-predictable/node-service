@@ -1,5 +1,6 @@
 import { clientFromHeaders, executeRequest } from '@riddance/host/http'
-import { Method, getHandlers, pathToRegExp } from '@riddance/host/registry'
+import { pathToRegExp, type Method } from '@riddance/host/http-registry'
+import { getHandlers } from '@riddance/host/registry'
 import type { JWTPayload } from 'jose'
 import { SignJWT } from 'jose/jwt/sign'
 import { createPrivateKey } from 'node:crypto'
