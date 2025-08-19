@@ -10,6 +10,31 @@ describe('echo', () => {
         })
         assert.strictEqual(response.status, 200)
         assert.strictEqual(response.headers['x-in-response-to'], 'http://localhost/echo/step')
-        assert.strictEqual(response.body.message, 'hi')
+        assert.strictEqual(response.headers.time, undefined)
+        assert.deepStrictEqual(response.body, { message: 'hi' })
+    })
+
+    it('should handle missing body', async () => {
+        const response = await request({
+            method: 'POST',
+            uri: 'echo/step',
+        })
+        assert.strictEqual(response.status, 200)
+        assert.strictEqual(response.headers['x-in-response-to'], 'http://localhost/echo/step')
+        assert.strictEqual(response.headers.time, undefined)
+        assert.strictEqual(response.body, undefined)
+    })
+
+    it('should serialize body', async () => {
+        const now = new Date()
+        const response = await request({
+            method: 'POST',
+            uri: 'echo/step',
+            json: { now },
+        })
+        assert.strictEqual(response.status, 200)
+        assert.strictEqual(response.headers['x-in-response-to'], 'http://localhost/echo/step')
+        assert.strictEqual(response.headers.time, now.getTime().toString())
+        assert.deepStrictEqual(response.body, { now: now.toISOString() })
     })
 })

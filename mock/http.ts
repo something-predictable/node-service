@@ -94,6 +94,8 @@ export async function request(options: RequestOptions): Promise<Response> {
         handler,
         {
             ...options,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, unicorn/prefer-structured-clone
+            ...('json' in options && { json: JSON.parse(JSON.stringify(options.json)) }),
             uri: 'http://localhost/' + options.uri,
         },
         success,
