@@ -1,6 +1,6 @@
 # Code is a Liability
 
-It slows you down, creates risks, increases maintainability burdens. So let's commit less of it.
+Too much code slows you down, creates risks, increases maintainability burdens, confuses AI. So let's commit less of it.
 
 With just _one dependency_, you get a modern microservice framework
 
@@ -27,11 +27,11 @@ Drop a `.ts` file in the directory, e.g.
 
 ```ts
 // greeting.ts
-import { get } from '@riddance/service/http';
+import { get } from "@riddance/service/http";
 
-get('greeting', (context, request) => {
+get("greeting", (context, request) => {
     return {
-        body: { message: 'Hello, World!' },
+        body: { message: "Hello, World!" },
     };
 });
 ```
@@ -40,15 +40,15 @@ and a correspoding file in a `test` subdirectory:
 
 ```ts
 // test/greeting.ts
-import { request } from '@riddance/service/test/http';
-import assert from 'node:assert/strict';
+import { request } from "@riddance/service/test/http";
+import assert from "node:assert/strict";
 
-describe('greeting', () => {
-    it('should say hi', async () => {
-        const response = await request({ uri: 'greeting' });
+describe("greeting", () => {
+    it("should say hi", async () => {
+        const response = await request({ uri: "greeting" });
 
         assert.strictEqual(response.status, 200);
-        assert.strictEqual(response.body.message, 'Hello, World!');
+        assert.strictEqual(response.body.message, "Hello, World!");
     });
 });
 ```
