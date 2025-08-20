@@ -77,7 +77,7 @@ function setupTestContext() {
                 if (!test.isFailed()) {
                     await testContext.log.dumpLog(title)
                     throw new Error(
-                        `"${title}" passed but subsequently failed because errors was logged during the test. Wrap the test code in allowErrorLogs if the error log entries are expected.`,
+                        `"${title}" passed but subsequently failed because errors was logged during the test. Add using _ = allowErrorLogs() if the error log entries are expected.`,
                     )
                 }
             }
