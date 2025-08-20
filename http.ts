@@ -9,7 +9,7 @@ export function withStatus<Status extends number>(error: Error, status: Status) 
     return Object.assign(error, { statusCode: status })
 }
 
-export function withPublicMessage(error: Error, message?: string): Error {
+export function withPublicMessage<TError extends Error>(error: TError, message?: string): TError {
     if (message) {
         const enriched = error as unknown as { [key: string]: unknown }
         if (enriched.body) {
