@@ -105,8 +105,25 @@ export async function request(options: RequestOptions): Promise<Response> {
     return {
         headers: response.headers,
         status: response.status,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        body: response.body ? JSON.parse(response.body.toString()) : undefined,
+        body: helpfulBody(response.body),
+    }
+}
+
+function helpfulBody(body: string | Buffer | undefined) {
+    if (!body) {
+        return undefined
+    }
+    if (Buffer.isBuffer(body)) {
+        try {
+            return JSON.parse(body.toString('utf-8')) as JSON
+        } catch {
+            return body
+        }
+    }
+    try {
+        return JSON.parse(body) as JSON
+    } catch {
+        return body
     }
 }
 

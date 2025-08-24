@@ -25,6 +25,17 @@ describe('echo', () => {
         assert.strictEqual(response.body, undefined)
     })
 
+    it('should handle text', async () => {
+        const response = await request({
+            method: 'POST',
+            uri: 'echo/step',
+            body: 'some text',
+        })
+        assert.strictEqual(response.status, 200)
+        assert.strictEqual(response.headers['x-in-response-to'], 'http://localhost/echo/step')
+        assert.deepStrictEqual(response.body, 'some text')
+    })
+
     it('should serialize body', async () => {
         const now = new Date()
         const response = await request({
