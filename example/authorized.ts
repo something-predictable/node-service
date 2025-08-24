@@ -10,8 +10,8 @@ get('authorized', async (context, request) => {
         throw badRequest('None query provided.')
     }
     return {
-        body: JSON.stringify({
+        body: {
             items: [],
-        }),
+        },
     }
 })

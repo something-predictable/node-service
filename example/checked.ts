@@ -13,8 +13,8 @@ get('check', (_, request) => {
         throw badRequest('No query provided.')
     }
     return {
-        body: JSON.stringify({
+        body: {
             items: [],
-        }),
+        },
     }
 })

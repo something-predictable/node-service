@@ -5,10 +5,10 @@ get('greeting/*', async (context, request) => {
     const who = request.url.searchParams.get('who') ?? 'World'
     await context.emit('greeting', 'sent', 'anonymous', { message: 'hello', who })
     return {
-        body: JSON.stringify({
+        body: {
             now: context.now(),
             step: request.url.pathStepAt(1),
             message: `Hello, ${who}!`,
-        }),
+        },
     }
 })
