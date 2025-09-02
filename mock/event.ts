@@ -11,7 +11,7 @@ export async function emit(
     subject: string,
     data: unknown,
     messageId?: string,
-): Promise<void> {
+): Promise<boolean> {
     const timestamp = getTestContext().now()
     const matching = getHandlers('event').filter(h => h.topic === topic && h.type === type)
     const serialized =
@@ -21,7 +21,7 @@ export async function emit(
               (JSON.parse(JSON.stringify(data)) as {
                   readonly [key: string]: Json
               })
-    await Promise.allSettled(
+    const result = await Promise.allSettled(
         matching.map(async handler => {
             const { log, context, success, flush } = createMockContext(
                 {},
@@ -31,7 +31,7 @@ export async function emit(
             log.trace('Found handler', undefined, {
                 handler: { topic, type },
             })
-            await handle(
+            const succeeded = await handle(
                 log,
                 context,
                 handler,
@@ -39,6 +39,8 @@ export async function emit(
                 success,
             )
             await flush()
+            return succeeded
         }),
     )
+    return result.every(r => r.status === 'fulfilled' && r.value)
 }
