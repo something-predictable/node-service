@@ -1,11 +1,9 @@
 import { handle } from '@riddance/host/event'
 import { getHandlers } from '@riddance/host/registry'
 import type { Json } from '../context.js'
-import { createMockContext, getTestContext, setup } from './setup.js'
+import { createMockContext, getTestContext } from './setup.js'
 
 export * from './context.js'
-
-setup()
 
 export async function emit(
     topic: string,

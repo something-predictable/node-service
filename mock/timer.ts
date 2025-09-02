@@ -1,11 +1,9 @@
 import { getHandlers } from '@riddance/host/registry'
 import { triggerTimer } from '@riddance/host/timer'
 import { CronTime } from 'cron'
-import { createMockContext, setup } from './setup.js'
+import { createMockContext } from './setup.js'
 
 export * from './context.js'
-
-setup()
 
 export async function clockStrikes(time: Date): Promise<void> {
     const matching = getHandlers('timer')

@@ -8,7 +8,7 @@ import { performance } from 'node:perf_hooks'
 import { pathToFileURL } from 'node:url'
 import { Environment, Json } from '../context.js'
 
-export function setup() {
+function setup() {
     setupTestContext()
     before(async () => {
         const { name, config } = await readConfig()
@@ -23,6 +23,8 @@ export function setup() {
         }
     })
 }
+
+setup()
 
 async function readEnv() {
     try {

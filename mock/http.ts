@@ -6,11 +6,9 @@ import { SignJWT } from 'jose/jwt/sign'
 import { createPrivateKey } from 'node:crypto'
 import { Environment } from '../http.js'
 import { getEnvironment } from './context.js'
-import { createMockContext, setup } from './setup.js'
+import { createMockContext } from './setup.js'
 
 export * from './context.js'
-
-setup()
 
 export type Response = {
     headers: { [key: string]: string }
