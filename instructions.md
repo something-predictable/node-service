@@ -4,16 +4,17 @@ This project is a cloud-agnostic **stateless** **zero-trust** **microservice** w
 
 ## Notes
 
-Services are **stateless**. Global variables **WILL NOT** survive till the next invocation.
-The service will be deployed in a zero-defect environment: any errors logged will notify a site reliability engineer.
-**DO NOT** hard-code environment-specific variables.
-Creating new entrypoints is hard. Think hard about it. Plan ahead.
-Make sure changes are backwards compatible.
-**DO** Think hard about adding tests. Sometimes the environment around a service cannot be sufficiently manipulated. Sometimes we may resort to triggering the code and be happy that no errors occurred.
+- Services are **stateless**. Global variables **WILL NOT** from one invocation to the next.
+- The service will be deployed in a zero-defect environment: any errors logged will notify a site reliability engineer.
+- **DO NOT** hard-code environment-specific variables.
+- Creating new entrypoints is hard. Think hard about it. Plan ahead.
+- Make sure changes are backwards compatible.
+- **DO** think hard about adding tests. Sometimes the environment around a service cannot be sufficiently manipulated. Sometimes we may resort to triggering the code and be happy that no errors occurred.
+- **DO** treat entrypoints as black boxes when writing tests, e.g. **DO NOT** go digging into how they store store data. If an entrypoint (like a POST or an event handler) has a sideeffect, **DO** use another entrypoint (like a GET) to verify the sideeffect.
 
 ## File structure
 
-- ./: The root contains the entry points, i.e. the handlers that run business logic in the cloud.
+- ./: The root contains the entrypoints, i.e. the handlers that run business logic in the cloud.
 - ./test/: For each of the root entrypoint files, there is a similarly named test files. The tests use Riddance mocks.
 - ./bin/: Contains any commandline utilities for working with the service. Most services do not have such utilities.
 
@@ -305,7 +306,7 @@ timeShift(5);
 timeShiftTo(new Date(2025, 8, 20, 20, 20));
 
 // Set or override environment variable like this
-setEnvironment({ SERVICE_BASE_URL: "http://localhost:" + port });
+setEnvironment({ SERVICE_BASE_URL: `http://localhost:${port}/` });
 ```
 
 If a handler does a fetch to an external endpoint, consider using creating a helper mock server using Nodejs' built-in `createServer` in the `node:http` module and use environment variable to direct the handler to hit that mock, and use it in all relevant tests. For internal endpoints and public external endpoints that doesn't mutate anything, just let the fetch run as is.
