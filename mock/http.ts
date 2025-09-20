@@ -3,6 +3,7 @@ import { pathToRegExp, type Method } from '@riddance/host/http-registry'
 import { getHandlers } from '@riddance/host/registry'
 import type { JWTPayload } from 'jose'
 import { SignJWT } from 'jose/jwt/sign'
+import assert from 'node:assert/strict'
 import { createPrivateKey } from 'node:crypto'
 import { Environment } from '../http.js'
 import { getEnvironment } from './context.js'
@@ -35,6 +36,9 @@ type JsonRequestOptions = BodylessRequestOptions & {
 }
 
 export async function request(options: RequestOptions): Promise<Response> {
+    if (options.uri.startsWith('/')) {
+        assert.strictEqual(options.uri, options.uri.slice(1), 'Path cannot start with slash.')
+    }
     const handlers = getHandlers('http').map(withPathRegExp)
     const matchingHandlers = handlers.filter(
         h => h[pathRegExp].test(options.uri) && h.method === (options.method ?? 'GET'),
