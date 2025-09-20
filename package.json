@@ -43,12 +43,12 @@
     "instructions": "./instructions.md"
   },
   "dependencies": {
-    "@riddance/host": "0.2.3",
+    "@riddance/host": "0.2.4",
     "cron": "4.3.3",
-    "jose": "6.0.12"
+    "jose": "6.1.0"
   },
   "devDependencies": {
-    "@riddance/env": "0.9.1"
+    "@riddance/env": "0.9.3"
   },
   "scripts": {
     "start": "riddance-watch",
