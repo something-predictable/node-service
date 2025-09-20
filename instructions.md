@@ -8,9 +8,10 @@ This project is a cloud-agnostic **stateless** **zero-trust** **microservice** w
 - The service will be deployed in a zero-defect environment: any errors logged will notify a site reliability engineer.
 - **DO NOT** hard-code environment-specific variables.
 - Creating new entrypoints is hard. Think hard about it. Plan ahead.
-- Make sure changes are backwards compatible.
+- Make sure changes leave **endpoints backwards compatible**. It is OK to make breaking changes **inside** the service.
 - **DO** think hard about adding tests. Sometimes the environment around a service cannot be sufficiently manipulated. Sometimes we may resort to triggering the code and be happy that no errors occurred.
 - **DO** treat entrypoints as black boxes when writing tests, e.g. **DO NOT** go digging into how they store store data. If an entrypoint (like a POST or an event handler) has a sideeffect, **DO** use another entrypoint (like a GET) to verify the sideeffect.
+- **DO NOT** fail silently. If an entrypoint did not accomplish what it was intended to do, it needs to throw an exception or at least log an error.
 
 ## File structure
 
@@ -153,7 +154,15 @@ The test/env.txt file that provides default environment variables in tests could
 API_KEY=some-secret
 ```
 
-HTTP requests can time out as seen from the client. If they do, clients will retry, so the entrypoints need to be idempotent.
+HTTP requests can time out as seen from the client. If they do, clients will retry, so the entrypoints need to be idempotent. For getting and updating resources, consider adding a `revision` number that is incremented on update, in order to track the order of updates.
+
+### Methods and paths
+
+- `get`: for side-effect free reads. Get a list of resources with path `bananas`, get a single resource with path `bananas/*` where the last segment is the ID.
+- `put`: for changing full resource. Use ID for the resource in the path, e.g. `bananas/*`.
+- `patch`: like `put` but with partial body.
+- `delete`: for changing full resource. Use ID for the resource in the path, e.g. `bananas/*`.
+- `post`: on e.g. the path `bananas`, either for reads with large complicated queries, or for one-off sending of messages that cannot have an ID, that cannot be idempotent and where idempotency does not matter.
 
 ## Event Handlers
 
@@ -184,18 +193,7 @@ describe("account locked", () => {
         // TODO: Assert side-effects
     });
 
-    it("some error condition", async () => {
-        await emit("account", "locked", randomUUID(), {
-            what: new Date(),
-        });
-
-        assert.deepStrictEqual(
-            getLoggedEntries()
-                .filter((e) => e.level === "error")
-                .map((e) => e.message),
-            ["Error message"],
-        );
-    });
+    // TODO: More tests
 });
 ```
 
@@ -226,16 +224,7 @@ describe("scheduled jobs", () => {
         // TODO: Assert side-effects
     });
 
-    it("some error condition", async () => {
-        await clockStrikes(new Date(2025, 9, 24, 20, 0));
-
-        assert.deepStrictEqual(
-            getLoggedEntries()
-                .filter((e) => e.level === "error")
-                .map((e) => e.message),
-            ["Error message"],
-        );
-    });
+    // TODO: More tests
 });
 ```
 
@@ -256,9 +245,10 @@ async (context) => {
     // context.env is the environment, where any deployment specific information is stored
     await fetch(context.env.SERVICE_BASE_URL + "?q=stuff", {
         headers: {
-            // When requesting other internal endpoints, include the headers from `httpRequestHeaders`. This will pass along information such as client ID, request ID, user agent, IP address, etc.
+            // When requesting **our own endpoints**, include the headers from `httpRequestHeaders`. This will pass along information such as client ID, request ID, user agent, IP address, etc.
             ...httpRequestHeaders(context),
-            // Do not use `httpRequestHeaders` when requesting external endpoints. Instead, pass only a user agent:
+
+            // Do not use `httpRequestHeaders` when requesting **endpoints not owned by us**. Instead, pass only a user agent:
             "user-agent": "MyBusinessService/1",
         },
         // `context.signal` is the AbortSignal for the whole handler. Pass it along to async functions.
@@ -309,10 +299,15 @@ timeShiftTo(new Date(2025, 8, 20, 20, 20));
 setEnvironment({ SERVICE_BASE_URL: `http://localhost:${port}/` });
 ```
 
-If a handler does a fetch to an external endpoint, consider using creating a helper mock server using Nodejs' built-in `createServer` in the `node:http` module and use environment variable to direct the handler to hit that mock, and use it in all relevant tests. For internal endpoints and public external endpoints that doesn't mutate anything, just let the fetch run as is.
+Remember, tests will automatically fail if errors are logged, so there's no need to assert that `getLoggedEntries()`is free of errors.
+
+If a handler does a fetch to **endpoints not owned by us**, consider using creating a helper mock server using Nodejs' built-in `createServer` in the `node:http` module and use environment variable to direct the handler to hit that mock, and use it in all relevant tests. Put such mocks at the bottom of the test files that need them. For **our own endpoints** and public external endpoints that doesn't mutate anything, just let the fetch run as is against a suitably deployed service configured in env.txt. Ask if you do not know where it's deployed.
 
 ## Related Packages
 
 npm install and use the following packages if relevant:
 
-**fetch**: **DO USE** the `@riddance/fetch` rather than the built-in `fetch`.
+**fetch**: **DO USE** the `@riddance/fetch` package rather than the built-in `fetch`.
+**docs**: **DO USE** the `@riddance/docs` package as document database to store end-user provided data if needed.
+
+Re-read your instructions after you install packages.
