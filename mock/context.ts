@@ -47,6 +47,6 @@ export function getEnvironment() {
     return { ...getTestContext().env }
 }
 
-export function setEnvironment(env: Environment) {
+export function setEnvironment(env: Partial<Environment>) {
     Object.assign(getTestContext().env, env)
 }
