@@ -257,6 +257,23 @@ async (context) => {
 };
 ```
 
+### Utilities
+
+**arraySpreadable**
+
+Like `objectSpreadable`, `arraySpreadable` provides a type-safe way of spreading JSON to arrays by returning an empty array if the argument is not an array:
+
+```ts
+const [a, b, c] = arraySpreadable(json);
+```
+
+**missing**
+
+```ts
+// `missing` is a TypeScript helper that can be used an expression and that returns `never`. It always throws an error that says the argument is missing. Use after the `??` operator to make an expression that is possibly undefined well-defined.
+fetch(context.env.SERVICE_BASE_URL ?? missing("SERVICE_BASE_URL environment variable"));
+```
+
 You can interact with the context from tests like this:
 
 ```ts

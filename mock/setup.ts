@@ -6,7 +6,13 @@ import { EOL } from 'node:os'
 import { basename, extname, join, relative, sep } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { pathToFileURL } from 'node:url'
-import { Environment, Json } from '../context.js'
+import {
+    Environment,
+    JsonSafeObject,
+    type JsonObject,
+    type JsonSafe,
+    type Stringified,
+} from '../context.js'
 
 function setup() {
     setupTestContext()
@@ -88,6 +94,14 @@ function setupTestContext() {
     })
 }
 
+export function jsonRoundtrip<T extends JsonSafe>(obj: T | undefined): Stringified<T> | undefined {
+    if (obj === undefined) {
+        return undefined
+    }
+    // eslint-disable-next-line unicorn/prefer-structured-clone
+    return JSON.parse(JSON.stringify(obj)) as Stringified<T>
+}
+
 export function createMockContext(client: ClientInfo, config?: FullConfiguration, meta?: Metadata) {
     const ctx = getTestContext()
     return createContext(
@@ -98,7 +112,7 @@ export function createMockContext(client: ClientInfo, config?: FullConfiguration
                 topic: string,
                 type: string,
                 subject: string,
-                data: Json | undefined,
+                data: JsonSafeObject | undefined,
                 messageId: string | undefined,
                 signal: AbortSignal,
             ) {
@@ -107,9 +121,7 @@ export function createMockContext(client: ClientInfo, config?: FullConfiguration
                     topic,
                     type,
                     subject,
-                    data:
-                        // eslint-disable-next-line unicorn/prefer-structured-clone
-                        data === undefined ? undefined : (JSON.parse(JSON.stringify(data)) as Json),
+                    data: jsonRoundtrip(data),
                     messageId,
                 })
                 return Promise.resolve()
@@ -247,7 +259,7 @@ type Event = {
     topic: string
     type: string
     subject: string
-    data?: Json
+    data?: JsonObject
     messageId: string | undefined
 }
 

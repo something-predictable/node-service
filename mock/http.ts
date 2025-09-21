@@ -5,9 +5,10 @@ import type { JWTPayload } from 'jose'
 import { SignJWT } from 'jose/jwt/sign'
 import assert from 'node:assert/strict'
 import { createPrivateKey } from 'node:crypto'
+import { type JsonSafe } from '../context.js'
 import { Environment } from '../http.js'
 import { getEnvironment } from './context.js'
-import { createMockContext } from './setup.js'
+import { createMockContext, jsonRoundtrip } from './setup.js'
 
 export * from './context.js'
 
@@ -32,7 +33,7 @@ type StringRequestOptions = BodylessRequestOptions & {
 }
 
 type JsonRequestOptions = BodylessRequestOptions & {
-    json: object
+    json: JsonSafe
 }
 
 export async function request(options: RequestOptions): Promise<Response> {
@@ -66,7 +67,12 @@ export async function request(options: RequestOptions): Promise<Response> {
         }
     }
     if (matchingHandlers.length !== 1) {
-        log.error('Multiple matching handlers.', undefined, { matchingHandlers })
+        log.error('Multiple matching handlers.', undefined, {
+            matchingHandlers: matchingHandlers.map(h => ({
+                method: h.method,
+                pattern: h.pathPattern,
+            })),
+        })
         log.error('Request END', undefined, {
             handlers: handlers.map(h => ({
                 pathPattern: h.pathPattern,
@@ -96,8 +102,7 @@ export async function request(options: RequestOptions): Promise<Response> {
         handler,
         {
             ...options,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, unicorn/prefer-structured-clone
-            ...('json' in options && { json: JSON.parse(JSON.stringify(options.json)) }),
+            ...('json' in options && { json: jsonRoundtrip(options.json) }),
             uri: 'http://localhost/' + options.uri,
         },
         success,

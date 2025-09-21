@@ -1,7 +1,7 @@
 import { handle } from '@riddance/host/event'
 import { getHandlers } from '@riddance/host/registry'
-import type { Json } from '../context.js'
-import { createMockContext, getTestContext } from './setup.js'
+import type { JsonSafeObject } from '../context.js'
+import { createMockContext, getTestContext, jsonRoundtrip } from './setup.js'
 
 export * from './context.js'
 
@@ -9,18 +9,12 @@ export async function emit(
     topic: string,
     type: string,
     subject: string,
-    data: unknown,
+    data: JsonSafeObject | undefined,
     messageId?: string,
 ): Promise<boolean> {
     const timestamp = getTestContext().now()
     const matching = getHandlers('event').filter(h => h.topic === topic && h.type === type)
-    const serialized =
-        data === undefined
-            ? undefined
-            : // eslint-disable-next-line unicorn/prefer-structured-clone
-              (JSON.parse(JSON.stringify(data)) as {
-                  readonly [key: string]: Json
-              })
+    const serialized = jsonRoundtrip(data)
     const result = await Promise.allSettled(
         matching.map(async handler => {
             const { log, context, success, flush } = createMockContext(

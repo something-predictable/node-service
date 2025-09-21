@@ -1,7 +1,7 @@
-import { post } from '@riddance/service/http'
+import { objectSpreadable, post } from '@riddance/service/http'
 
 post('echo/*', (_, request) => {
-    const now = (request.body as { now?: string } | undefined)?.now
+    const { now } = objectSpreadable(request.body)
     return {
         headers: {
             'x-in-response-to': request.url.href,
