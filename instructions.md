@@ -15,9 +15,9 @@ This project is a cloud-agnostic **stateless** **zero-trust** **microservice** w
 
 ## File structure
 
-- ./: The root contains the entrypoints, i.e. the handlers that run business logic in the cloud.
-- ./test/: For each of the root entrypoint files, there is a similarly named test files. The tests use Riddance mocks.
-- ./bin/: Contains any commandline utilities for working with the service. Most services do not have such utilities.
+- `./`: The root contains the entrypoints, i.e. the handlers that run business logic in the cloud.
+- `./test/`: For each of the root entrypoint files, there is a similarly named test files. The tests use Riddance mocks.
+- `./bin/`: Contains any commandline utilities for working with the service. Most services do not have such utilities.
 
 # Entrypoint types
 
@@ -39,7 +39,7 @@ get("users/*/profile", async (context, request) => {
     // `getBearer` takes the JWT bearer token for the current request, verifies and unpacks it. It will throw `unauthorized` if it can't, so the code following it can assume there is a correctly signed bearer token. `getBearer` returns parsed JSON, which TypeScript doesn't know. `objectSpreadable` is a no-op function that tells TypeScript that it is safe to spread the JSON into an object whose values will also be parsed JSON. If the JSON is in fact a number or a boolean, the spread will work, but be empty. There is a similar function called `arraySpreadable` allows spreading JSON that is an array into an array.
     const { sub, scope } = objectSpreadable(await getBearer(context, request));
     // Make sure to weed out error cases in the beginning
-    if (!sub) {
+    if (typeof sub !== "string") {
         // Exceptions thrown will result in status code 500, unless they have a statusCode in which case that will be used. `forbidden` is a function that returns an exception with status code 403. There are similar functions called `unauthorized`, `notFound`, `badRequest`, and `notImplemented`. There's a shortcut to make your own: `withStatus(new Error('My error message'), 418)`. Only the status code is included in the response, nothing else, not the stacktrace, not the exception message.
         throw forbidden();
     }
@@ -151,7 +151,9 @@ The test/env.txt file that provides default environment variables in tests could
 
 ```ini
 # test/env.txt
-API_KEY=some-secret
+API_KEY=our-secret
+OTHER_SERVICE_BASE_URL=https://example.com/api/
+OTHER_SERVICE_API_KEY=some-key
 ```
 
 HTTP requests can time out as seen from the client. If they do, clients will retry, so the entrypoints need to be idempotent. For getting and updating resources, consider adding a `revision` number that is incremented on update, in order to track the order of updates.
@@ -243,12 +245,13 @@ async (context) => {
     const now = context.now();
 
     // context.env is the environment, where any deployment specific information is stored
+    // Note that BASE_URL variables end in a slash, so they can be concatenated with relative paths
     await fetch(context.env.SERVICE_BASE_URL + "?q=stuff", {
         headers: {
             // When requesting **our own endpoints**, include the headers from `httpRequestHeaders`. This will pass along information such as client ID, request ID, user agent, IP address, etc.
             ...httpRequestHeaders(context),
 
-            // Do not use `httpRequestHeaders` when requesting **endpoints not owned by us**. Instead, pass only a user agent:
+            // **DO NOT** use `httpRequestHeaders` when requesting **endpoints not owned by us**. Instead, pass **only** a user agent:
             "user-agent": "MyBusinessService/1",
         },
         // `context.signal` is the AbortSignal for the whole handler. Pass it along to async functions.
