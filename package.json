@@ -48,7 +48,7 @@
     "jose": "6.1.0"
   },
   "devDependencies": {
-    "@riddance/env": "0.9.3"
+    "@riddance/env": "0.9.4"
   },
   "scripts": {
     "start": "riddance-watch",
