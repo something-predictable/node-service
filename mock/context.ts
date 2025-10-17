@@ -34,13 +34,21 @@ export function allowErrorLogs() {
     }
 }
 
-export function timeShift(seconds: number): void {
+export function timeShift(seconds: number) {
     getTestContext().timeShift += seconds
 }
 
-export function timeShiftTo(when: Date): void {
+export function timeShiftTo(when: Date) {
     getTestContext().timeShift = 0
     timeShift((when.getTime() - Date.now()) / 1000)
+}
+
+export function freezeTime(when: Date) {
+    getTestContext().frozenTime = when.getTime()
+}
+
+export function unfreezeTime() {
+    getTestContext().frozenTime = undefined
 }
 
 export function getEnvironment() {

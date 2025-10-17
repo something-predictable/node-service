@@ -277,6 +277,8 @@ const [a, b, c] = arraySpreadable(json);
 fetch(context.env.SERVICE_BASE_URL ?? missing("SERVICE_BASE_URL environment variable"));
 ```
 
+**Testing**
+
 You can interact with the context from tests like this:
 
 ```ts
@@ -310,10 +312,12 @@ assert.deepStrictEqual(getEmitted(), [
     },
 ]);
 
-// Set the wall-clock time reported by `context.now()` using time shift. Shift it forward five seconds like this
+// Set the wall-clock time reported by `context.now()` using **time shift**. Shift it forward five seconds like this
 timeShift(5);
 // and to a specific time like this
 timeShiftTo(new Date(2025, 8, 20, 20, 20));
+// With time shift the clock behind `context.now()` keeps ticking in real time. If that's inconvenient, say if it's exposed in data asserted on in tests, use `freezeTime` instead, which is like `timeShiftTo` but also stops the time from passing:
+freezeTime(new Date(2025, 8, 20, 20, 20));
 
 // Set or override environment variable like this
 setEnvironment({ SERVICE_BASE_URL: `http://localhost:${port}/` });
@@ -321,7 +325,7 @@ setEnvironment({ SERVICE_BASE_URL: `http://localhost:${port}/` });
 
 Remember, tests will automatically fail if errors are logged, so there's no need to assert that `getLoggedEntries()`is free of errors.
 
-If a handler does a fetch to **endpoints not owned by us**, consider using creating a helper mock server using Nodejs' built-in `createServer` in the `node:http` module and use environment variable to direct the handler to hit that mock, and use it in all relevant tests. Put such mocks at the bottom of the test files that need them. For **our own endpoints** and public external endpoints that doesn't mutate anything, just let the fetch run as is against a suitably deployed service configured in env.txt. Ask if you do not know where it's deployed.
+If a handler does a fetch to **endpoints not owned by us**, consider using creating a helper mock server using Nodejs' built-in `createServer` in the `node:http` module and use environment variable to direct the handler to hit that mock, and use it in all relevant tests. Put such mocks at the bottom of the test files that need them. For **our own endpoints** and public external endpoints that doesn't mutate anything, just let the fetch run as-is against an already deployed service configured in env.txt. Ask if you do not know where it's deployed.
 
 ## Related Packages
 

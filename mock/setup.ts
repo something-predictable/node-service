@@ -273,6 +273,7 @@ class TestContext {
     environment: { [key: string]: string }
     emitted: Event[] = []
 
+    frozenTime: number | undefined
     timeShift = 0
 
     constructor(env: Environment) {
@@ -287,6 +288,9 @@ class TestContext {
     }
 
     now(): Date {
+        if (this.frozenTime !== undefined) {
+            return new Date(this.frozenTime)
+        }
         const d = new Date()
         d.setUTCSeconds(d.getUTCSeconds() + this.timeShift)
         return d
