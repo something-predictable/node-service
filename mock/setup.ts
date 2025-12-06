@@ -289,7 +289,7 @@ class TestContext {
 
     now(): Date {
         if (this.frozenTime !== undefined) {
-            return new Date(this.frozenTime)
+            return new Date(this.frozenTime + this.timeShift * 1000)
         }
         const d = new Date()
         d.setUTCSeconds(d.getUTCSeconds() + this.timeShift)
