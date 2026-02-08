@@ -14,24 +14,6 @@ import {
     type Stringified,
 } from '../context.js'
 
-function setup() {
-    setupTestContext()
-    before(async () => {
-        const { name, config } = await readConfig()
-        const dir = process.cwd()
-        const files = (await readdir('.')).filter(
-            file => extname(file) === '.ts' && !file.endsWith('.d.ts'),
-        )
-        for (const file of files) {
-            const base = basename(file, '.ts')
-            setMeta(name, base, 'test-mock', config)
-            await import(pathToFileURL(join(dir, base + '.js')).toString())
-        }
-    })
-}
-
-setup()
-
 async function readEnv() {
     try {
         const envText = await readFile('test/env.txt', 'utf-8')
@@ -62,16 +44,29 @@ async function readConfig() {
 
 let testContext: TestContext | undefined
 
-function setupTestContext() {
-    beforeEach('Clear logged entries', async () => {
+export const mochaHooks = {
+    async beforeAll() {
+        const { name, config } = await readConfig()
+        const dir = process.cwd()
+        const files = (await readdir('.')).filter(
+            file => extname(file) === '.ts' && !file.endsWith('.d.ts'),
+        )
+        for (const file of files) {
+            const base = basename(file, '.ts')
+            setMeta(name, base, 'test-mock', config)
+            await import(pathToFileURL(join(dir, base + '.js')).toString())
+        }
+    },
+
+    async beforeEach() {
         const env = await readEnv()
         if (testContext) {
             throw new Error('Context exists.')
         }
         testContext = new TestContext(env)
-    })
+    },
 
-    afterEach('Check log', async function () {
+    afterEach: async function checkLog(this: Mocha.Context) {
         if (!testContext) {
             throw new Error('Test context lost.')
         }
@@ -91,7 +86,7 @@ function setupTestContext() {
             }
         }
         testContext = undefined
-    })
+    },
 }
 
 export function jsonRoundtrip<T extends JsonSafe>(obj: T | undefined): Stringified<T> | undefined {

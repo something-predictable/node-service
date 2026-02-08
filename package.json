@@ -1,6 +1,6 @@
 {
   "name": "@riddance/service",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -34,21 +34,23 @@
     "./http": "./http.js",
     "./timer": "./timer.js",
     "./event": "./event.js",
+    "./test/mock": "./mock/setup.js",
     "./test/context": "./mock/context.js",
     "./test/http": "./mock/http.js",
     "./test/timer": "./mock/timer.js",
     "./test/event": "./mock/event.js"
   },
+  "mock": "test/mock",
   "ai": {
     "instructions": "./instructions.md"
   },
   "dependencies": {
     "@riddance/host": "0.2.6",
-    "cron": "4.3.5",
+    "cron": "4.4.0",
     "jose": "6.1.3"
   },
   "devDependencies": {
-    "@riddance/env": "0.9.7"
+    "@riddance/env": "0.9.9"
   },
   "scripts": {
     "start": "riddance-watch",

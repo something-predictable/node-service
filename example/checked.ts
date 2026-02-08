@@ -1,11 +1,11 @@
 import { badRequest, forbidden, get, unauthorized } from '@riddance/service/http'
 
-get('check', (_, request) => {
+get('check', (context, request) => {
     const key = request.url.searchParams.get('key')
     if (key === null) {
         throw unauthorized()
     }
-    if (key !== '🤫') {
+    if (key !== context.env.KEY) {
         throw forbidden()
     }
     const query = request.url.searchParams.get('q')
